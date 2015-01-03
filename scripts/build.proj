@@ -1,0 +1,42 @@
+﻿<Project DefaultTargets="build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RootDir>..\</RootDir>
+    <SolutionDir>$(RootDir)\src</SolutionDir>
+    <BuildOutputPath>$(SolutionDir)\IISExpress.TestRunner\bin\$(Configuration)</BuildOutputPath>  
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <AllProjects Include="$(SolutionDir)\IISExpress.TestRunner\*.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <BuildOutputFolder>$(RootDir)\deploy\$(Configuration)</BuildOutputFolder>
+  </PropertyGroup>
+
+  <Target Name="build">
+    <MSBuild Projects="build.proj" Targets="cleanup"/>
+    <MSBuild Projects="build.proj" Targets="buildConfiguration" Properties="Configuration=Debug;Platform=AnyCpu"/>
+    <MSBuild Projects="build.proj" Targets="buildConfiguration" Properties="Configuration=Release;Platform=AnyCpu"/>
+  </Target>
+  
+  <Target Name="buildConfiguration" DependsOnTargets="compile_projects; copy_build_output" />
+
+  <Target Name="cleanup">
+    <RemoveDir Directories="$(BuildOutputFolder)" ContinueOnError="true"/>
+  </Target>
+  
+  <Target Name="compile_projects">
+    <Message Text="Building @(AllProjects) in configuration $(Configuration)"/>
+    <MSBuild Projects="@(AllProjects)" Targets="rebuild" StopOnFirstFailure="true" Properties="Configuration=$(Configuration)"/>
+  </Target>
+
+  <Target Name="copy_build_output">
+    <ItemGroup>
+      <Bins Include="$(BuildOutputPath)\IISExpress.TestRunner.exe"/>
+      <Bins Include="$(BuildOutputPath)\IISExpress.TestRunner.exe.config"/>
+      <Bins Include="$(BuildOutputPath)\*.dll"/>
+    </ItemGroup>
+
+    <Copy SourceFiles="@(Bins)" DestinationFolder="$(BuildOutputFolder)" />
+  </Target>
+</Project>

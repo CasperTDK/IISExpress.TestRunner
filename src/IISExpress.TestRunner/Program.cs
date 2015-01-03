@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using IISExpress.TestRunner.Attribute;
 using log4net;
@@ -33,11 +34,8 @@ namespace IISExpress.TestRunner
 
         private static int Main(string[] args)
         {
-#if DEBUG
-            _environment = Env.Debug;
-#else
-             environment = Env.Release;
-#endif
+            _environment = ConfigurationManager.AppSettings["environment"] == "debug" ? Env.Debug : Env.Release;
+
             ConfigureLogging();
             Log.Debug("Starting IISExpress.TestRunner...");
 
