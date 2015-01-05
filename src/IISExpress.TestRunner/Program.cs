@@ -2,11 +2,6 @@
 using System.Configuration;
 using System.Diagnostics;
 using IISExpress.TestRunner.Attribute;
-using log4net;
-using log4net.Appender;
-using log4net.Core;
-using log4net.Layout;
-using log4net.Repository.Hierarchy;
 
 namespace IISExpress.TestRunner
 {
@@ -17,27 +12,17 @@ namespace IISExpress.TestRunner
             Debug,
             Release
         }
-        private static readonly ILog Log = LogManager.GetLogger(typeof(Program));
+
+        private static readonly Action<string> Log = str => Console.WriteLine(str);
         private static Env _environment;
 
-        private static void ConfigureLogging()
-        {
-            var patternLayout = new PatternLayout { ConversionPattern = "%date [%thread] %-5level %logger - %message%newline" };
-            var hierarchy = (Hierarchy)LogManager.GetRepository();
-            hierarchy.Root.AddAppender(new TraceAppender { Layout = patternLayout });
-            hierarchy.Root.AddAppender(new ConsoleAppender { Layout = patternLayout });
-
-            hierarchy.Root.Level = _environment == Env.Debug ? Level.Debug : Level.Info;
-
-            hierarchy.Configured = true;
-        }
+   
 
         private static int Main(string[] args)
         {
             _environment = ConfigurationManager.AppSettings["environment"] == "debug" ? Env.Debug : Env.Release;
 
-            ConfigureLogging();
-            Log.Debug("Starting IISExpress.TestRunner...");
+            Log("Starting IISExpress.TestRunner...");
 
             var parsedArguments = new CommandLineArguments();
             CommandLineParser.ParseArguments(args, parsedArguments);
@@ -72,14 +57,14 @@ namespace IISExpress.TestRunner
                 Console.ReadKey();
             }
 
-            Log.Debug("Shutting down");
+            Log("Shutting down");
             return 0;
         }
 
 
         private static int HandleError(string stepName)
         {
-            Log.Info("An error occurred executing " + stepName + ". Exiting...");
+            Log("An error occurred executing " + stepName + ". Exiting...");
 
             if (_environment == Env.Debug)
             {
@@ -87,7 +72,7 @@ namespace IISExpress.TestRunner
                 Console.ReadKey();
             }
 
-            Log.Debug("Shutting down");
+            Log("Shutting down");
             return -1;
         }
     }
