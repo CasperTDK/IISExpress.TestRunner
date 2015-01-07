@@ -31,6 +31,8 @@ namespace IISExpress.TestRunner.Processes
 
             TestrunnerName = Path.GetFileName(filename);
 
+            LogInfo(string.Format("Starting {0} with arguments {1}", TestrunnerName, Process.StartInfo.Arguments));
+
             int resultCode;
 
             try

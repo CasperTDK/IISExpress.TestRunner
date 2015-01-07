@@ -16,7 +16,7 @@ namespace IISExpress.TestRunner
         private static readonly Action<string> Log = str => Console.WriteLine(str);
         private static Env _environment;
 
-   
+
 
         private static int Main(string[] args)
         {
@@ -42,6 +42,7 @@ namespace IISExpress.TestRunner
                 using (var testRunner = new Processes.TestRunner())
                 {
                     var testRunnerStarted = testRunner.Start(parsedArguments.TestRunnerPath, parsedArguments.TestRunnerArguments);
+                    Pause();
                     if (testIISExpress != null) testIISExpress.Dispose();
                     if (testRunnerStarted == -1) return HandleError("TestRunner");
                 }
@@ -51,30 +52,29 @@ namespace IISExpress.TestRunner
 
         private static int Shutdown()
         {
-            if (_environment == Env.Debug)
-            {
-                Debugger.Break();
-                Console.ReadKey();
-            }
-
             Log("Shutting down");
             return 0;
         }
 
 
+
         private static int HandleError(string stepName)
         {
             Log("An error occurred executing " + stepName + ". Exiting...");
-
-            if (_environment == Env.Debug)
-            {
-                Debugger.Break();
-                Console.ReadKey();
-            }
-
+            Pause();
             Log("Shutting down");
             return -1;
         }
+
+        private static void Pause()
+        {
+            if (_environment == Env.Debug)
+            {
+                Console.WriteLine("Waiting for keypress..");
+                Console.ReadKey();
+            }
+        }
+
     }
 
 
